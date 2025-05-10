@@ -1,0 +1,24 @@
+{
+  "History": [
+    {
+      "Date": "2025-05-09T00:00:00",
+      "ActualWeight": 60,
+      "Bmi": 24.341758286340216,
+      "Decoding": "\u041D\u043E\u0440\u043C\u0430"
+    },
+    {
+      "Date": "2025-05-10T00:00:00",
+      "ActualWeight": 58,
+      "Bmi": 23.53036634346221,
+      "Decoding": "\u041D\u043E\u0440\u043C\u0430"
+    }
+  ],
+  "Name": "\u0410",
+  "Surname": "\u041B",
+  "Birthday": "2002-01-25T00:00:00",
+  "Height": 1.57,
+  "Weight": 63,
+  "DoneWeight": 50,
+  "DateOfRecording": "2025-05-10T00:00:00",
+  "ActualWeight": 58
+}
