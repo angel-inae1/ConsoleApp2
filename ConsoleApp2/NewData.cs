@@ -4,6 +4,11 @@ using System.IO;
 
 public class NewData : PersonBase
 {
+    public NewData(DateTime dateofrecording, double actualweight)
+    {
+        DateOfRecording = dateofrecording;
+        ActualWeight = actualweight;
+    }
     public static Person? LoadFromJson(string filePath)
     {
         if (!File.Exists(filePath))
@@ -22,7 +27,7 @@ public class NewData : PersonBase
         return person;
     }
 
-    public Person? AddNewData()
+    public static Person? AddNewData()
     {
         Console.WriteLine("Введите Фамилию, Имя и дату рождения в формате Фамилия_Имя_день-месяц-год.json");
         string? filename = Console.ReadLine();
@@ -39,36 +44,41 @@ public class NewData : PersonBase
             
             Console.WriteLine("Введите новые данные:");
             Console.Write("Дата записи:");
-            bool dateResult = DateTime.TryParse(Console.ReadLine(), out DateTime date);
-            while (!dateResult)
+            DateTime dateofrecording;
+            while (!DateTime.TryParseExact(Console.ReadLine(), 
+                       "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture, 
+                       System.Globalization.DateTimeStyles.None, 
+                       out dateofrecording))
             {
-                Console.Write("Некорректные ввод:");
-                dateResult = DateTime.TryParse(Console.ReadLine(), out date);
+                Console.Write("Неверный формат. Повторите ввод (дд.ММ.гггг): ");
             }
-            person.DateOfRecording = date;
             
             Console.Write("Актуальный вес:");
-            bool weightResult = double.TryParse(Console.ReadLine(), out double personWeight);
-            while (!weightResult)
+            double actualweight;
+            bool weightResult;
+            do
             {
-                Console.Write("Некорректные данные, введите правильный вес: ");
-                weightResult = double.TryParse(Console.ReadLine(), out personWeight);
-            }
-            person.ActualWeight = personWeight;
+                string? input = Console.ReadLine();
+                weightResult = double.TryParse(input, out actualweight);
+                if (!weightResult || actualweight <= 0)
+                {
+                    Console.Write("Некорректные данные, введите правильный вес: ");
+                }
+            } while (!weightResult || actualweight <= 0);
             
-            var (bmi, decoding) = person.Calculatebmi(person.ActualWeight,person.Height);
+            var (bmi, decoding) = person.Calculatebmi(actualweight, person.Height);
             Console.WriteLine($"Ваш актуальный ИМТ: {bmi:F1} ({decoding})");
             
-            double progress = person.Weight - person.ActualWeight;
+            double progress = person.Weight - actualweight;
             Console.WriteLine($"Ваш прогресс: {progress} кг");
 
-            double progress2 = person.ActualWeight - person.DoneWeight;
+            double progress2 = actualweight - person.DoneWeight;
             Console.WriteLine($"Осталось {progress2} кг");
 
             var entry = new PersonHistoryEntry
             {
-                Date = person.DateOfRecording,
-                ActualWeight = person.ActualWeight,
+                Date = dateofrecording,
+                ActualWeight = actualweight,
                 Bmi = bmi,
                 Decoding = decoding
             };

@@ -17,12 +17,10 @@
                 switch (answer)
                 {
                     case "1":
-                        Person person = new Person();
-                        person.AddNewPerson();
+                        Person.AddNewPerson();
                         break;
                     case "2":
-                        NewData data = new NewData();
-                        data.AddNewData();
+                        NewData.AddNewData();
                         break;
                     case "3":
                         PersonInfo.ShowPersonInfo();

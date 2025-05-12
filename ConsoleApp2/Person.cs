@@ -4,6 +4,17 @@ using System.IO;
 public class Person : PersonBase
 {
     public List<PersonHistoryEntry> History { get; set; } = new();
+
+    public Person(string name, string surname, DateTime birthday, double height, double weight, double doneWeight)
+    {
+        Name = name;
+        Surname = surname;
+        Birthday = birthday;
+        Height = height;
+        Weight = weight;
+        DoneWeight = doneWeight;
+    }
+    
     public int GetAge()
     {
         var today = DateTime.Today;
@@ -19,69 +30,86 @@ public class Person : PersonBase
        Console.WriteLine(decoding);
        return bmi;
     }
-    public Person AddNewPerson()
+    public static Person AddNewPerson()
     {
-        Person person = new Person();
-        
         Console.Write("Имя:");
-        person.Name = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(person.Name))
+        string? name;
+        do
         {
-            Console.Write("Введите имя:");
-            person.Name = Console.ReadLine();
-        }
+            name = Console.ReadLine();
+        } while (string.IsNullOrWhiteSpace(name));
+        
         Console.Write("Фамилия:");
-        person.Surname = Console.ReadLine();
-        while (string.IsNullOrWhiteSpace(person.Surname))
+        string? surname;
+        do
         {
-            Console.Write("Введите фамилию:");
-            person.Surname = Console.ReadLine();
-        }
+            surname = Console.ReadLine();
+        } while (string.IsNullOrWhiteSpace(surname));
        
-        Console.Write("Дата рождения: ");
+       
+        Console.Write("Дата рождения (дд.ММ.гггг): ");
         DateTime birthday;
-
-        while (!DateTime.TryParseExact(Console.ReadLine(), "dd.MM.yyyy",
-                   System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
+        while (!DateTime.TryParseExact(Console.ReadLine(), 
+                   "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture, 
+                   System.Globalization.DateTimeStyles.None, 
                    out birthday))
         {
-            Console.WriteLine("Некорректный ввод, введите данные в порядку день.месяц.год");
+            Console.Write("Неверный формат. Повторите ввод (дд.ММ.гггг): ");
         }
-        person.Birthday = birthday;
         
-        Console.WriteLine("Возраст:" + person.GetAge());
+        
+        Console.WriteLine("Возраст:" + new Person(name,surname,birthday,0,0,0).GetAge());
         
         Console.Write("Рост в м: ");
-        bool heightResult = double.TryParse(Console.ReadLine(), out double personHeight);
-        while (!heightResult || personHeight <= 0)
+        double height;
+        bool heightResult;
+        do
         {
-            Console.Write("Некорректные данные, введите правильный рост: ");
-            heightResult = double.TryParse(Console.ReadLine(), out personHeight);
+            string? input = Console.ReadLine();
+            heightResult = double.TryParse(input, out height);
+            if (!heightResult || height <= 0)
+            {
+                Console.Write("Неверный ввод. Повторите ввод роста в метрах: ");
+            }
         }
-        person.Height = personHeight;
+        while (!heightResult || height <= 0);
+        
         
         Console.Write("Вес: ");
-        bool weightResult = double.TryParse(Console.ReadLine(), out double personWeight);
-        while (!weightResult)
+        double weight;
+        bool weightResult;
+        do
         {
-            Console.Write("Некорректные данные, введите правильный вес: ");
-            weightResult = double.TryParse(Console.ReadLine(), out personWeight);
-        }
-        person.Weight = personWeight;
+            string? input = Console.ReadLine();
+            weightResult = double.TryParse(input, out weight);
+            if (!weightResult || weight <= 0)
+            {
+                Console.Write("Некорректные данные, введите правильный вес: ");
+            }
+        } while (!weightResult || weight <= 0);
         
         Console.Write("Желаемый вес: ");
-        bool doneWeightResult = double.TryParse(Console.ReadLine(), out double personDoneWeight);
-        while (!doneWeightResult)
+        double doneWeight;
+        bool doneWeightResult;
+        do
         {
-            Console.Write("Некорректный ввод: ");
-            doneWeightResult = double.TryParse(Console.ReadLine(), out personDoneWeight);
-        }
-        person.DoneWeight = personDoneWeight;
+            string? input = Console.ReadLine();
+            doneWeightResult = double.TryParse(input, out doneWeight);
+            if (!doneWeightResult || doneWeight <= 0)
+            {
+                Console.Write("Некорректный ввод: ");
+            }
+        } while (!doneWeightResult || doneWeight <= 0);
         
-        var (bmi, decoding) = Calculatebmi(person.Weight, person.Height);
+        Person person = new Person(name, surname, birthday, height, weight, doneWeight);
+        
+        var (bmi, decoding) = person.Calculatebmi(weight, height);
         Console.WriteLine($"Индекс массы тела: {bmi:F1} ({decoding})");
         
-        Console.WriteLine($"Данные, которые вы ввели: {person.Name} {person.Surname} {person.Birthday.ToString("d")}  ({person.GetAge()} лет)\n Рост: {person.Height}м Вес: {person.Weight}кг \n Желаемый вес: {person.DoneWeight}кг Индекс массы тела: {bmi:F1} ({decoding})");
+        Console.WriteLine($"Данные, которые вы ввели: {name} {surname} {birthday.ToString("d")} " +
+                          $" ({person.GetAge()} лет)\n " +
+                          $"Рост: {height}м Вес: {weight}кг \n" +
+                          $" Желаемый вес: {doneWeight}кг Индекс массы тела: {bmi:F1} ({decoding})");
         
         Console.WriteLine("Хотите сохранить данные? да/нет");
         string answer;
@@ -93,14 +121,15 @@ public class Person : PersonBase
 
         switch (answer)
         {
-            case "д" or "да":
+            case "д":
+            case "да":
                 string directory = "Data";
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
                 }
-                string datasave = person.Birthday.ToString("dd-MM-yyyy");
-                string filename = $"{person.Surname}_{person.Name}_{datasave}.json";
+                string datasave = birthday.ToString("dd-MM-yyyy");
+                string filename = $"{surname}_{name}_{datasave}.json";
                 string path = Path.Combine(directory, filename);
                 string json = JsonSerializer.Serialize(person, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(path, json);
