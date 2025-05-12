@@ -135,7 +135,9 @@ public class Person : PersonBase
                 File.WriteAllText(path, json);
                 Console.WriteLine($"Данные сохранены в файл: {filename}");
                 break;
-            case "н" or "не" or "нет":
+            case "н":
+            case "не":
+            case "нет":
                 Console.WriteLine("Данные не сохранены!");
                 break;
         }
